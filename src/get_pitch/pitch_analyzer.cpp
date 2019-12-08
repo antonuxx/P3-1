@@ -12,6 +12,10 @@ namespace upc {
 
     for (unsigned int l = 0; l < r.size(); ++l) {
   		/// \TODO Compute the autocorrelation r[l]
+      for(unsigned int n = 0; n < x.size()-l; n++){
+        r[l] += x[n]*x[n+l];
+      }
+      r[l] /= x.size()-l;
     }
 
     if (r[0] == 0.0F) //to avoid log() and divide zero 
@@ -27,6 +31,9 @@ namespace upc {
     switch (win_type) {
     case HAMMING:
       /// \TODO Implement the Hamming window
+      for(int n = 0; n < frameLen; n++){
+        window[n] = 0.53836-0.46164*cos((2*M_PI*n)/(frameLen-1));
+      }
       break;
     case RECT:
     default:
@@ -50,7 +57,12 @@ namespace upc {
     /// \TODO Implement a rule to decide whether the sound is voiced or not.
     /// * You can use the standard features (pot, r1norm, rmaxnorm),
     ///   or compute and use other ones.
-    return false;
+    if (r1norm > 0.75){
+      return false;
+    }
+    else{
+      return true;
+    }
   }
 
   float PitchAnalyzer::compute_pitch(vector<float> & x) const {
